@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agro-X</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0b331c" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Agro-X" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-scale: 1;
+      font-size: calc(16px * var(--font-scale));
+
+      --bg-outer: #edf5eb;
+      --bg-app: #f4fbf2;
+      --surface: #ffffff;
+      --surface-soft: #e8f8f5;
+      --border: #d5ebd5;
+      --forest: #0b331c;
+      --green: #27ae60;
+      --green-dark: #1e8449;
+      --leaf: #2ecc71;
+      --text: #11261b;
+      --muted: #52715d;
+      --amber-bg: #fef9e7;
+      --amber-border: #fdebd0;
+      --amber-text: #b7950b;
+      --red-bg: #fdf4f2;
+      --red-border: #efc1b7;
+      --red-text: #9d2e20;
+      --radius-lg: 1.25rem;
+      --radius-md: 1rem;
+      --shadow: 0 0.25rem 1rem rgba(39, 174, 96, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg-outer);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; cursor: pointer; }
+    input, select { font: inherit; }
+
+    .preview-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: #0b331c;
+      color: #e4efe0;
+      font-size: 0.7rem;
+    }
+    .preview-bar button {
+      padding: 0.3125rem 0.6875rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: #e4efe0;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      min-height: calc(100dvh - 2.6rem);
+      margin: 0 auto;
+      background: var(--bg-app);
+      position: relative;
+      padding-bottom: 6rem;
+    }
+
+    @media (min-width: 640px) {
+      .app-shell {
+        margin: 1.375rem auto 2rem;
+        min-height: 820px;
+        border-radius: 2rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 1.5rem 3.75rem rgba(11, 51, 28, 0.12);
+        overflow: hidden;
+      }
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.25rem 0.875rem;
+      background: var(--bg-app);
+      gap: 0.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5625rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.0375rem;
+      color: var(--forest);
+    }
+    .brand-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.75rem;
+      background: var(--forest);
+      color: var(--leaf);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .brand em { font-style: normal; color: var(--green); }
+
+    .plan-badge {
+      padding: 0.375rem 0.75rem;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--forest);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      box-shadow: 0 0.125rem 0.5rem rgba(39, 174, 96, 0.08);
+    }
+    .plan-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    .farm-strip {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0 1.25rem 0.875rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .farm-strip::-webkit-scrollbar { display: none; }
+
+    .farm-chip {
+      flex: 0 0 auto;
+      padding: 0.5625rem 0.9375rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      transition: all 0.15s ease;
+    }
+    .farm-chip.active {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: #ffffff;
+    }
+
+    .content {
+      padding: 0 1.125rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      min-height: 50vh;
+    }
+
+    .hero-card {
+      background:
+        linear-gradient(180deg, rgba(10, 32, 18, 0.18) 0%, rgba(10, 32, 18, 0.72) 100%),
+        url('https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1200&q=90') center / cover;
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      box-shadow: 0 0.625rem 1.5625rem rgba(11, 51, 28, 0.18);
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .hero-top > div:first-child { min-width: 0; flex: 1 1 180px; }
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.056rem;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+      margin: 0 0 0.25rem;
+    }
+    .hero-title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025rem;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
+      overflow-wrap: break-word;
+    }
+    .hero-meta {
+      margin: 0.25rem 0 0;
+      font-size: 0.875rem;
+      color: #f4fbf2;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .weather-pill {
+      background: rgba(11, 51, 28, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 1rem;
+      padding: 0.5rem 0.75rem;
+      text-align: right;
+      flex-shrink: 0;
+      backdrop-filter: blur(4px);
+    }
+    .weather-pill strong { display: block; font-size: 1.125rem; line-height: 1.1; }
+    .weather-pill span { font-size: 0.75rem; color: #e8f8f5; }
+
+    .stage-box {
+      margin-top: 1.125rem;
+      padding: 0.875rem;
+      border-radius: 1rem;
+      background: rgba(11, 51, 28, 0.68);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.625rem;
+      font-size: 0.8125rem;
+    }
+    .stage-header span { color: #d4efdf; }
+    .stage-header strong { color: #ffffff; }
+
+    .stage-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.375rem;
+    }
+    .stage-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3125rem;
+      background: transparent;
+      border: 0;
+      padding: 0.25rem 0;
+      color: rgba(255,255,255,0.75);
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    .stage-bar {
+      width: 100%;
+      height: 0.4375rem;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.3);
+      transition: background 0.2s;
+    }
+    .stage-step.done .stage-bar { background: #2ecc71; }
+    .stage-step.current .stage-bar {
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.5);
+    }
+    .stage-step.current, .stage-step.done { color: #ffffff; }
+
+    .stage-hint {
+      margin: 0.5rem 0 0;
+      font-size: 0.75rem;
+      color: #d4efdf;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.125rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.625rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-head > div:first-child { min-width: 0; flex: 1 1 140px; }
+    .card-kicker {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.05rem;
+      text-transform: uppercase;
+      color: var(--green);
+      margin: 0 0 0.1875rem;
+    }
+    .card-title {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--forest);
+      overflow-wrap: break-word;
+    }
+
+    .tag-orientativo {
+      flex-shrink: 0;
+      padding: 0.25rem 0.5625rem;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .tag-actual {
+      flex-shrink: 0;
+      padding: 0.25rem 0.5625rem;
+      border-radius: 999px;
+      background: var(--forest);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .alert-card {
+      border-radius: var(--radius-lg);
+      padding: 1.0625rem;
+      border: 1px solid var(--amber-border);
+      background: var(--amber-bg);
+    }
+    .alert-card.high {
+      border-color: var(--red-border);
+      background: var(--red-bg);
+    }
+
+    .alert-top {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .alert-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.8125rem;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      background: rgba(157, 46, 32, 0.12);
+      color: var(--red-text);
+      font-weight: 800;
+      font-size: 1.125rem;
+    }
+    .alert-card:not(.high) .alert-icon {
+      background: rgba(183, 149, 11, 0.15);
+      color: #b7950b;
+    }
+    .alert-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.4375rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.25rem;
+    }
+    .severity-pill {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+      background: var(--red-text);
+      color: #fff;
+    }
+    .alert-card:not(.high) .severity-pill {
+      background: #b7950b;
+    }
+    .alert-date {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .alert-title {
+      margin: 0;
+      font-size: 1.0625rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .alert-detail {
+      margin: 0.625rem 0 0;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      color: #2c3e35;
+    }
+    .alert-recs {
+      margin: 0.625rem 0 0;
+      padding-left: 1.125rem;
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: #2c3e35;
+    }
+    .suggested-box {
+      margin-top: 0.75rem;
+      padding: 0.6875rem 0.8125rem;
+      border-radius: 0.8125rem;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(39, 174, 96, 0.2);
+      font-size: 0.875rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .locked-box {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.875rem;
+      border-radius: 0.875rem;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px dashed #d4ac0d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.625rem;
+      font-size: 0.875rem;
+      color: #7d6608;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      width: 100%;
+      min-height: 3rem;
+      border: 0;
+      border-radius: 0.875rem;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #ffffff;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 0.25rem 0.875rem rgba(39, 174, 96, 0.25);
+    }
+    .btn-primary:disabled { opacity: 0.55; }
+    .btn-primary:active { background: #1e8449; transform: scale(0.98); }
+
+    .btn-soft {
+      min-height: 2.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.8125rem;
+      background: var(--surface-soft);
+      color: var(--forest);
+      font-size: 0.875rem;
+      font-weight: 700;
+      padding: 0.375rem 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+    }
+    .btn-urgent {
+      width: 100%;
+      min-height: 2.875rem;
+      margin-top: 0.75rem;
+      border: 0;
+      border-radius: 0.8125rem;
+      background: var(--red-text);
+      color: #ffffff;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 0.25rem 0.75rem rgba(157, 46, 32, 0.2);
+    }
+
+    .priority-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 0.875rem;
+    }
+    .priority-btn {
+      min-height: 2.875rem;
+      border-radius: 0.875rem;
+      border: 1px solid var(--border);
+      background: #fafbf9;
+      color: var(--muted);
+      font-size: 0.875rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 0.25rem;
+    }
+    .priority-btn.active {
+      background: var(--surface-soft);
+      border-color: var(--green);
+      color: var(--forest);
+    }
+
+    .rotation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .rotation-item {
+      padding: 0.8125rem 0.875rem;
+      border-radius: 0.9375rem;
+      background: #fafbf9;
+      border: 1px solid var(--border);
+    }
+    .rotation-item.current { border-color: var(--forest); background: var(--surface-soft); }
+    .rotation-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3125rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .rotation-item-top strong { font-size: 1rem; color: var(--forest); }
+    .score-pill {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--green);
+      background: var(--surface-soft);
+      padding: 0.1875rem 0.5625rem;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .rotation-reasons {
+      margin: 0;
+      padding-left: 1rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.625rem;
+      margin-top: 0.75rem;
+    }
+    .fact-box {
+      padding: 0.6875rem 0.75rem;
+      border-radius: 0.875rem;
+      background: #fafbf9;
+      border: 1px solid var(--border);
+    }
+    .fact-box span { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.125rem; }
+    .fact-box strong { font-size: 0.9375rem; color: var(--forest); }
+
+    .source-line {
+      margin: 0.625rem 0 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .plan-option {
+      padding: 0.9375rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: #fafbf9;
+      margin-bottom: 0.625rem;
+    }
+    .plan-option.current {
+      border-color: var(--green);
+      background: var(--surface-soft);
+    }
+    .plan-option-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.375rem;
+      gap: 0.5rem;
+    }
+    .plan-option-head strong { font-size: 1.0625rem; color: var(--forest); }
+    .plan-price { font-size: 0.8125rem; font-weight: 700; color: var(--muted); }
+    .plan-option ul {
+      margin: 0;
+      padding-left: 1.125rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .a11y-widget {
+      position: fixed;
+      right: 16px;
+      bottom: 86px;
+      z-index: 45;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    @media (min-width: 640px) {
+      .a11y-widget {
+        right: max(20px, calc(50% - 220px));
+        bottom: 96px;
+      }
+    }
+    .a11y-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: #ffffff;
+      border: 2px solid var(--green);
+      border-radius: 22px;
+      padding: 14px 12px;
+      box-shadow: 0 12px 32px rgba(11, 51, 28, 0.25);
+      width: 68px;
+      animation: rise 0.16s ease-out;
+    }
+    .a11y-panel.open { display: flex; }
+    .a11y-panel-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--forest);
+      text-align: center;
+      margin-bottom: 6px;
+      line-height: 1.15;
+    }
+    .a11y-big-a { font-size: 20px; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+    .a11y-small-a { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 4px; }
+    .a11y-slider-wrap { height: 130px; display: flex; align-items: center; justify-content: center; margin: 4px 0; }
+    .a11y-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 120px; height: 10px;
+      background: #d5ebd5; border-radius: 999px; outline: none;
+      transform: rotate(-90deg); cursor: pointer;
+    }
+    .a11y-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--green); border: 3px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer;
+    }
+    .a11y-slider::-moz-range-thumb {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--green); border: 3px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer;
+    }
+    .a11y-value-badge {
+      margin-top: 8px; background: var(--surface-soft); color: var(--forest);
+      font-size: 11px; font-weight: 800; padding: 3px 7px; border-radius: 999px;
+    }
+    .a11y-toggle-btn {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--forest); color: #ffffff;
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 20px rgba(11, 51, 28, 0.32);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; line-height: 1; gap: 2px;
+      transition: transform 0.15s ease;
+    }
+    .a11y-toggle-btn:active { transform: scale(0.94); }
+    .a11y-toggle-btn small { font-size: 9px; font-weight: 700; color: #a9df7c; letter-spacing: 0.4px; }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+      z-index: 20;
+      box-shadow: 0 -0.375rem 1.25rem rgba(39, 174, 96, 0.08);
+    }
+    @media (min-width: 640px) {
+      .bottom-nav { position: sticky; bottom: 0; left: auto; transform: none; }
+    }
+    .nav-btn {
+      min-height: 3.375rem;
+      border: 0;
+      border-radius: 0.875rem;
+      background: transparent;
+      color: #7f9b87;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .nav-btn.active { background: var(--surface-soft); color: var(--green); }
+
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 51, 28, 0.45);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+      padding: 0.75rem;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet {
+      width: 100%;
+      max-width: 460px;
+      max-height: 86vh;
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 1.25rem 3.125rem rgba(0,0,0,0.2);
+      animation: rise 0.18s ease-out;
+    }
+    @keyframes rise { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .sheet-head h3 { margin: 0; font-size: 1.125rem; color: var(--forest); }
+    .close-btn {
+      width: 2.25rem; height: 2.25rem; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--bg-app);
+      font-size: 1.125rem; color: var(--forest);
+    }
+    .field-label { font-size: 0.8125rem; font-weight: 700; color: var(--forest); margin: 0 0 0.3rem; }
+    .field-input {
+      width: 100%;
+      min-height: 2.875rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      padding: 0 0.875rem;
+      font-size: 0.9375rem;
+      margin-bottom: 0.625rem;
+      background: #fafbf9;
+    }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .field-check { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--text); margin-bottom: 0.75rem; }
+    .field-error { font-size: 0.8125rem; color: var(--red-text); margin: -0.25rem 0 0.625rem; min-height: 1.1em; }
+    .toast {
+      position: fixed; top: 3.875rem; left: 50%; transform: translateX(-50%);
+      background: var(--forest); color: #ffffff;
+      padding: 0.625rem 1rem; border-radius: 999px;
+      font-size: 0.8125rem; font-weight: 600;
+      box-shadow: 0 0.625rem 1.5rem rgba(0,0,0,0.18);
+      display: none; z-index: 60; max-width: 90vw; text-align: center;
+    }
+    .toast.show { display: block; }
+    .toast.error { background: var(--red-text); }
+
+    .login-screen {
+      max-width: 420px; margin: 10vh auto; padding: 0 1.25rem;
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .login-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow);
+    }
+    .auth-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .auth-toggle button {
+      flex: 1; padding: 0.6rem; border-radius: 0.75rem; border: 1px solid var(--border);
+      background: #fafbf9; color: var(--muted); font-weight: 700; font-size: 0.875rem;
+    }
+    .auth-toggle button.active { background: var(--forest); color: #fff; border-color: var(--forest); }
+    .center-text { text-align: center; color: var(--muted); font-size: 0.8125rem; }
+    .spinner-text { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.9375rem; }
+  </style>
+</head>
+<body>
+
+  <div class="preview-bar">
+    <span id="apiBaseLabel">Servidor: ...</span>
+    <button id="btnChangeApi">Cambiar servidor</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div id="root"></div>
+
+  <div class="sheet-backdrop" id="sheetBackdrop">
+    <div class="sheet" id="sheetBody"></div>
+  </div>
+
+  <script>
+    /* ====================== Configuración y estado ====================== */
+    // Render es el backend permanente (ver GUIA-PARA-DISENO-FRONTEND.md). Para la demo completa
+    // de alertas/ideas de venta urgente, cambia el servidor desde el botón de arriba al enlace de
+    // ngrok del servidor local — Render todavía no puede recalcular alertas (ADR-015).
+    const DEFAULT_API_BASE = "https://agro-x-api.onrender.com";
+    const LS_API = "agroXApiBase";
+    const LS_ACCESS = "agroXAccess";
+    const LS_REFRESH = "agroXRefresh";
+
+    const STAGES = [
+      { key: "recien_plantada", label: "Siembra" },
+      { key: "crecimiento", label: "Brote" },
+      { key: "floracion", label: "Flor" },
+      { key: "fruto", label: "Fruto" },
+      { key: "cosecha", label: "Cosecha" }
+    ];
+    const PRIORITY_LABELS = { water: "💧 Agua", soil: "🌱 Suelo", income: "🪙 Ingreso" };
+
+    const appState = {
+      screen: "loading", // loading | login | app
+      authMode: "login",
+      tab: "hoy",
+      user: null,
+      farms: [],
+      selectedFarmId: null,
+      alertsByFarm: {},     // farmId -> array | "loading" | error string
+      rotationByFarm: {},   // farmId -> {priority: result}
+      priority: "water",
+      busy: false,
+    };
+
+    function getApiBase() {
+      return localStorage.getItem(LS_API) || DEFAULT_API_BASE;
+    }
+    function setApiBase(url) {
+      localStorage.setItem(LS_API, url.replace(/\/$/, ""));
+    }
+
+    /* ====================== Cliente HTTP ====================== */
+    async function apiFetch(path, options = {}, allowRetry = true) {
+      const base = getApiBase();
+      const headers = Object.assign(
+        { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        options.headers || {}
+      );
+      const access = localStorage.getItem(LS_ACCESS);
+      if (access) headers["Authorization"] = "Bearer " + access;
+
+      let res;
+      try {
+        res = await fetch(base + path, { ...options, headers });
+      } catch (networkErr) {
+        const err = new Error("No se pudo conectar con " + base + ". ¿Está encendido el servidor?");
+        err.code = "network_error";
+        throw err;
+      }
+
+      if (res.status === 401 && allowRetry && path !== "/auth/refresh") {
+        const ok = await tryRefreshToken();
+        if (ok) return apiFetch(path, options, false);
+      }
+
+      let body = null;
+      if (res.status !== 204) {
+        try { body = await res.json(); } catch (e) { /* sin cuerpo JSON */ }
+      }
+
+      if (!res.ok) {
+        const message = (body && body.error && body.error.message) || `Error ${res.status}`;
+        const err = new Error(message);
+        err.status = res.status;
+        err.code = body && body.error && body.error.code;
+        throw err;
+      }
+      return body;
+    }
+
+    async function tryRefreshToken() {
+      const refresh = localStorage.getItem(LS_REFRESH);
+      if (!refresh) return false;
+      try {
+        const res = await fetch(getApiBase() + "/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+          body: JSON.stringify({ refresh_token: refresh }),
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        localStorage.setItem(LS_ACCESS, data.access_token);
+        localStorage.setItem(LS_REFRESH, data.refresh_token);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem(LS_ACCESS);
+      localStorage.removeItem(LS_REFRESH);
+      appState.user = null;
+      appState.farms = [];
+      appState.alertsByFarm = {};
+      appState.rotationByFarm = {};
+      appState.screen = "login";
+      render();
+    }
+
+    /* ====================== UI helpers ====================== */
+    function showToast(msg, isError) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.toggle("error", !!isError);
+      el.classList.add("show");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => el.classList.remove("show"), 3400);
+    }
+    function openSheet(html) {
+      document.getElementById("sheetBody").innerHTML = html;
+      document.getElementById("sheetBackdrop").classList.add("open");
+    }
+    function closeSheet() {
+      document.getElementById("sheetBackdrop").classList.remove("open");
+    }
+    document.getElementById("sheetBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "sheetBackdrop") closeSheet();
+    });
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    document.getElementById("btnChangeApi").onclick = () => {
+      openSheet(`
+        <div class="sheet-head"><h3>Servidor de la API</h3><button class="close-btn" onclick="closeSheet()">×</button></div>
+        <p class="field-label">Dirección base (sin barra al final)</p>
+        <input class="field-input" id="apiBaseInput" value="${escapeHtml(getApiBase())}" placeholder="https://..." />
+        <p class="center-text">Ej: el enlace de ngrok del servidor local, o https://agro-x-api.onrender.com</p>
+        <button class="btn-primary" id="saveApiBase">Guardar y volver a entrar</button>
+      `);
+      document.getElementById("saveApiBase").onclick = () => {
+        const val = document.getElementById("apiBaseInput").value.trim();
+        if (!val) return;
+        setApiBase(val);
+        closeSheet();
+        logout();
+        boot();
+      };
+    };
+
+    /* ====================== Arranque y autenticación ====================== */
+    async function boot() {
+      document.getElementById("apiBaseLabel").textContent = "Servidor: " + getApiBase().replace(/^https?:\/\//, "");
+      const access = localStorage.getItem(LS_ACCESS);
+      if (!access) {
+        appState.screen = "login";
+        render();
+        return;
+      }
+      try {
+        appState.user = await apiFetch("/auth/me");
+        await loadFarms();
+        appState.screen = "app";
+      } catch (e) {
+        appState.screen = "login";
+      }
+      render();
+    }
+
+    async function loadFarms() {
+      appState.farms = await apiFetch("/farms");
+      if (!appState.selectedFarmId || !appState.farms.some(f => f.id === appState.selectedFarmId)) {
+        appState.selectedFarmId = appState.farms[0]?.id || null;
+      }
+    }
+
+    function renderLogin() {
+      const isRegister = appState.authMode === "register";
+      return `
+        <div class="login-screen">
+          <div class="brand" style="justify-content:center;">
+            <div class="brand-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+              </svg>
+            </div>
+            <span>Agro<em>-X</em></span>
+          </div>
+          <div class="login-card">
+            <div class="auth-toggle">
+              <button class="${!isRegister ? "active" : ""}" id="btnShowLogin">Ingresar</button>
+              <button class="${isRegister ? "active" : ""}" id="btnShowRegister">Crear cuenta</button>
+            </div>
+            <form id="authForm">
+              ${isRegister ? `
+                <p class="field-label">Nombre</p>
+                <input class="field-input" id="fName" required />
+                <p class="field-label">Rol</p>
+                <select class="field-input" id="fRole">
+                  <option value="producer">Productor</option>
+                  <option value="merchant">Comerciante</option>
+                </select>
+              ` : ""}
+              <p class="field-label">Correo</p>
+              <input class="field-input" id="fEmail" type="email" required />
+              <p class="field-label">Contraseña ${isRegister ? "(mínimo 12 caracteres)" : ""}</p>
+              <input class="field-input" id="fPassword" type="password" required minlength="${isRegister ? 12 : 1}" />
+              <p class="field-error" id="authError"></p>
+              <button class="btn-primary" type="submit" id="authSubmit">${isRegister ? "Crear cuenta" : "Entrar a mi campo"}</button>
+            </form>
+          </div>
+          <p class="center-text">Cuentas de prueba: juez-pro@example.com / juez-free@example.com — contraseña JuecesAgroX2026</p>
+        </div>
+      `;
+    }
+
+    function wireLogin() {
+      document.getElementById("btnShowLogin").onclick = () => { appState.authMode = "login"; render(); };
+      document.getElementById("btnShowRegister").onclick = () => { appState.authMode = "register"; render(); };
+      document.getElementById("authForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("fEmail").value.trim();
+        const password = document.getElementById("fPassword").value;
+        const errEl = document.getElementById("authError");
+        const btn = document.getElementById("authSubmit");
+        errEl.textContent = "";
+        btn.disabled = true;
+        try {
+          if (appState.authMode === "register") {
+            const name = document.getElementById("fName").value.trim();
+            const role = document.getElementById("fRole").value;
+            await apiFetch("/auth/register", {
+              method: "POST",
+              body: JSON.stringify({ email, name, password, role }),
+            });
+          }
+          const tokens = await apiFetch("/auth/login", {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+          });
+          localStorage.setItem(LS_ACCESS, tokens.access_token);
+          localStorage.setItem(LS_REFRESH, tokens.refresh_token);
+          await boot();
+        } catch (err) {
+          errEl.textContent = err.message;
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    }
+
+    /* ====================== App: Hoy ====================== */
+    function getCurrentFarm() {
+      return appState.farms.find(f => f.id === appState.selectedFarmId) || null;
+    }
+
+    async function ensureAlertsLoaded(farmId) {
+      if (appState.alertsByFarm[farmId] !== undefined) return;
+      appState.alertsByFarm[farmId] = "loading";
+      try {
+        appState.alertsByFarm[farmId] = await apiFetch(`/farms/${farmId}/alerts`);
+      } catch (e) {
+        appState.alertsByFarm[farmId] = { error: e.message };
+      }
+    }
+
+    function renderHoy(farm) {
+      const alerts = appState.alertsByFarm[farm.id];
+      let alertsHtml;
+      if (alerts === "loading" || alerts === undefined) {
+        alertsHtml = `<div class="card"><p class="center-text">Cargando alertas…</p></div>`;
+      } else if (alerts.error) {
+        alertsHtml = `<div class="card"><p class="center-text">No se pudieron cargar las alertas: ${escapeHtml(alerts.error)}</p></div>`;
+      } else if (alerts.length === 0) {
+        alertsHtml = `
+          <div class="card">
+            <p class="card-kicker">Alertas</p>
+            <h2 class="card-title">Sin alertas activas todavía</h2>
+            <p class="center-text" style="margin-top:0.5rem;">Pulsa "Recalcular" para consultar el clima real de esta parcela.</p>
+            <button class="btn-soft" style="width:100%; margin-top:0.75rem;" id="btnRefreshAlerts">↻ Recalcular alertas</button>
+          </div>`;
+      } else {
+        alertsHtml = alerts.map(alert => {
+          const isHigh = alert.severity === "alta";
+          const hasDetail = alert.detail !== null && alert.detail !== undefined;
+          let inner;
+          if (!hasDetail) {
+            inner = `
+              <div class="locked-box">
+                <span>El detalle y las acciones de esta alerta están disponibles desde el <strong>plan Básico</strong>.</span>
+                <button class="btn-soft" onclick="window.goToAccount()">Ver planes</button>
+              </div>`;
+          } else {
+            inner = `
+              <p class="alert-detail">${escapeHtml(alert.detail)}</p>
+              ${alert.recommendations ? `<p class="alert-detail" style="margin-top:0.5rem;"><strong>Recomendación:</strong> ${escapeHtml(alert.recommendations)}</p>` : ""}
+              ${alert.suggested_crop ? `
+                <div class="suggested-box">
+                  <span><strong>Sugerencia:</strong> ${escapeHtml(alert.suggested_crop)}</span>
+                  <span class="tag-orientativo">Orientativo</span>
+                </div>` : ""}
+              ${isHigh ? `<button class="btn-urgent" data-urgent-alert="${alert.id}">Ver ideas de venta urgente →</button>` : ""}
+            `;
+          }
+          return `
+            <article class="alert-card ${isHigh ? "high" : ""}">
+              <div class="alert-top">
+                <div class="alert-icon" aria-hidden="true">!</div>
+                <div style="min-width:0;">
+                  <div class="alert-meta">
+                    <span class="severity-pill">Riesgo ${escapeHtml(alert.severity)}</span>
+                    ${alert.expected_date ? `<span class="alert-date">Previsto: ${escapeHtml(alert.expected_date)}</span>` : ""}
+                    ${alert.illustrative ? `<span class="tag-orientativo">Orientativo</span>` : ""}
+                  </div>
+                  <h2 class="alert-title">${escapeHtml(alert.title)}</h2>
+                </div>
+              </div>
+              ${inner}
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:0.625rem; margin-top:0.875rem; flex-wrap:wrap;">
+                <span class="source-line" style="margin:0;">Fuentes: ${alert.sources_used.join(" · ")}</span>
+              </div>
+            </article>`;
+        }).join("") + `<button class="btn-soft" style="width:100%;" id="btnRefreshAlerts">↻ Recalcular alertas</button>`;
+      }
+
+      return `
+        <article class="hero-card">
+          <div class="hero-top">
+            <div>
+              <p class="hero-eyebrow">${escapeHtml(farm.region)} · ${farm.area_hectares} ha</p>
+              <h1 class="hero-title">${escapeHtml(farm.name)}</h1>
+            </div>
+          </div>
+          <div class="stage-box" id="stageBox">
+            <p class="center-text" style="color:#d4efdf;">Cargando cultivo vigente…</p>
+          </div>
+        </article>
+        ${alertsHtml}
+      `;
+    }
+
+    async function wireHoyAfterRender(farm) {
+      loadCurrentCropIntoStageBox(farm.id);
+
+      const btnRef = document.getElementById("btnRefreshAlerts");
+      if (btnRef) {
+        btnRef.onclick = async () => {
+          btnRef.disabled = true;
+          btnRef.textContent = "Consultando clima…";
+          try {
+            appState.alertsByFarm[farm.id] = await apiFetch(`/farms/${farm.id}/alerts/refresh`, { method: "POST" });
+            showToast("Alertas actualizadas con NASA POWER y Open-Meteo");
+          } catch (e) {
+            if (e.code === "too_soon") {
+              showToast(e.message, true);
+            } else {
+              showToast("No se pudo recalcular: " + e.message, true);
+            }
+          }
+          render();
+        };
+      }
+
+      document.querySelectorAll("[data-urgent-alert]").forEach(btn => {
+        btn.onclick = async () => {
+          try {
+            const ideas = await apiFetch(`/farms/${farm.id}/promotions/ideas`);
+            const forThisAlert = ideas.find(i => i.alert_id === btn.dataset.urgentAlert) || ideas[0];
+            openSheet(`
+              <div class="sheet-head"><h3>Ideas de venta urgente</h3><button class="close-btn" onclick="closeSheet()">×</button></div>
+              <p class="center-text" style="margin-top:0;">Para <strong>${escapeHtml(forThisAlert.crop || "tu cultivo")}</strong> ante "${escapeHtml(forThisAlert.alert_title)}" <span class="tag-orientativo">Orientativo</span></p>
+              <ul style="padding-left:1.125rem; line-height:1.6; font-size:0.9375rem;">
+                ${forThisAlert.ideas.map(i => `<li>${escapeHtml(i)}</li>`).join("")}
+              </ul>
+              <button class="btn-primary" onclick="closeSheet()">Entendido</button>
+            `);
+          } catch (e) {
+            if (e.code === "plan_required") {
+              showUpgradeSheet("Las ideas de venta urgente requieren plan básico o pro.");
+            } else if (e.status === 404) {
+              showToast("No hay alertas de riesgo alto activas en este momento.");
+            } else {
+              showToast(e.message, true);
+            }
+          }
+        };
+      });
+    }
+
+    async function loadCurrentCropIntoStageBox(farmId) {
+      const box = document.getElementById("stageBox");
+      if (!box) return;
+      try {
+        const history = await apiFetch(`/farms/${farmId}/crop-history`);
+        const current = history.find(h => h.current);
+        if (!current) {
+          box.innerHTML = `
+            <p class="center-text" style="color:#d4efdf;">Esta parcela todavía no tiene un cultivo registrado.</p>
+            <button class="btn-soft" style="width:100%; margin-top:0.5rem;" id="btnFirstCrop">+ Registrar cultivo</button>
+          `;
+          const b = document.getElementById("btnFirstCrop");
+          if (b) b.onclick = () => openNewCropSheet(farmId);
+          return;
+        }
+        const stageIdx = STAGES.findIndex(s => s.key === current.stage);
+        box.innerHTML = `
+          <div class="stage-header"><span>Cultivo vigente</span><strong>${escapeHtml(current.crop)}</strong></div>
+          <div class="stage-track">
+            ${STAGES.map((st, idx) => `
+              <button class="stage-step ${idx < stageIdx ? "done" : idx === stageIdx ? "current" : ""}" data-stage="${st.key}">
+                <div class="stage-bar"></div><span>${st.label}</span>
+              </button>`).join("")}
+          </div>
+          <p class="stage-hint"><span>Toca una etapa para actualizar</span><span>Siembra: ${escapeHtml(current.planting_date)}</span></p>
+        `;
+        box.querySelectorAll("[data-stage]").forEach(btn => {
+          btn.onclick = async () => {
+            try {
+              await apiFetch(`/farms/${farmId}/crop-history/current`, {
+                method: "PATCH",
+                body: JSON.stringify({ stage: btn.dataset.stage }),
+              });
+              showToast("Etapa actualizada");
+              loadCurrentCropIntoStageBox(farmId);
+            } catch (e) {
+              showToast(e.message, true);
+            }
+          };
+        });
+      } catch (e) {
+        box.innerHTML = `<p class="center-text" style="color:#d4efdf;">No se pudo cargar el cultivo: ${escapeHtml(e.message)}</p>`;
+      }
+    }
+
+    /* ====================== App: Parcelas ====================== */
+    function renderParcelas(farm) {
+      if (!farm) {
+        return `
+          <article class="card">
+            <p class="card-kicker">Parcelas</p>
+            <h2 class="card-title">Todavía no tienes ninguna</h2>
+            <button class="btn-primary" style="margin-top:0.875rem;" id="btnNewFarmEmpty">+ Crear mi primera parcela</button>
+          </article>`;
+      }
+      return `
+        <article class="card">
+          <div class="card-head">
+            <div><p class="card-kicker">Tus parcelas (${appState.farms.length})</p><h2 class="card-title">${escapeHtml(farm.name)}</h2></div>
+            <button class="btn-soft" id="btnNewFarmCard">+ Agregar</button>
+          </div>
+          <div class="facts-grid">
+            <div class="fact-box"><span>Superficie</span><strong>${farm.area_hectares} hectáreas</strong></div>
+            <div class="fact-box"><span>Textura de suelo</span><strong>${escapeHtml(farm.soil_texture || "Sin dato")}</strong></div>
+            <div class="fact-box"><span>Drenaje</span><strong>${escapeHtml(farm.drainage || "Sin dato")}</strong></div>
+            <div class="fact-box"><span>Riego</span><strong>${farm.has_irrigation ? "Sí, disponible" : "Sin riego (secano)"}</strong></div>
+            <div class="fact-box"><span>Materia orgánica</span><strong>${farm.organic_matter_percent != null ? farm.organic_matter_percent + "%" : "Sin dato"}</strong></div>
+            <div class="fact-box"><span>Ubicación</span><strong>${farm.latitude}, ${farm.longitude}</strong></div>
+          </div>
+          <button class="btn-primary" style="margin-top:0.875rem;" id="btnNewCrop">Registrar nuevo cultivo en ${escapeHtml(farm.name)}</button>
+        </article>`;
+    }
+
+    function wireParcelasAfterRender(farm) {
+      const btnNF = document.getElementById("btnNewFarmCard") || document.getElementById("btnNewFarmEmpty");
+      if (btnNF) btnNF.onclick = openNewFarmSheet;
+      const btnNC = document.getElementById("btnNewCrop");
+      if (btnNC && farm) btnNC.onclick = () => openNewCropSheet(farm.id);
+    }
+
+    function openNewFarmSheet() {
+      openSheet(`
+        <div class="sheet-head"><h3>Agregar nueva parcela</h3><button class="close-btn" onclick="closeSheet()">×</button></div>
+        <p class="field-label">Nombre</p>
+        <input class="field-input" id="nfName" placeholder="Ej. Potrero Sur" />
+        <p class="field-label">Región</p>
+        <input class="field-input" id="nfRegion" placeholder="Ej. O'Higgins" />
+        <div class="field-row">
+          <div><p class="field-label">Latitud</p><input class="field-input" id="nfLat" type="number" step="0.0001" placeholder="-33.45" /></div>
+          <div><p class="field-label">Longitud</p><input class="field-input" id="nfLon" type="number" step="0.0001" placeholder="-70.65" /></div>
+        </div>
+        <p class="field-label">Superficie (hectáreas)</p>
+        <input class="field-input" id="nfArea" type="number" step="0.1" placeholder="4.5" />
+        <label class="field-check"><input type="checkbox" id="nfIrrigation" /> Tiene riego disponible</label>
+        <p class="field-error" id="nfError"></p>
+        <button class="btn-primary" id="saveNewFarm">Guardar parcela</button>
+      `);
+      document.getElementById("saveNewFarm").onclick = async () => {
+        const errEl = document.getElementById("nfError");
+        const payload = {
+          name: document.getElementById("nfName").value.trim(),
+          region: document.getElementById("nfRegion").value.trim(),
+          latitude: parseFloat(document.getElementById("nfLat").value),
+          longitude: parseFloat(document.getElementById("nfLon").value),
+          area_hectares: parseFloat(document.getElementById("nfArea").value),
+          has_irrigation: document.getElementById("nfIrrigation").checked,
+        };
+        if (!payload.name || !payload.region || Number.isNaN(payload.latitude) || Number.isNaN(payload.longitude) || Number.isNaN(payload.area_hectares)) {
+          errEl.textContent = "Completa nombre, región, latitud, longitud y superficie.";
+          return;
+        }
+        try {
+          const farm = await apiFetch("/farms", { method: "POST", body: JSON.stringify(payload) });
+          await loadFarms();
+          appState.selectedFarmId = farm.id;
+          closeSheet();
+          render();
+          showToast("Parcela creada");
+        } catch (e) {
+          errEl.textContent = e.code === "plan_required" ? e.message + " (sube de plan para agregar más)" : e.message;
+        }
+      };
+    }
+
+    function openNewCropSheet(farmId) {
+      openSheet(`
+        <div class="sheet-head"><h3>Nuevo cultivo</h3><button class="close-btn" onclick="closeSheet()">×</button></div>
+        <p class="field-label">Cultivo</p>
+        <input class="field-input" id="ncName" placeholder="Ej. Lechuga, Maíz, Trigo" />
+        <p class="field-label">Fecha de plantación</p>
+        <input class="field-input" id="ncDate" type="date" />
+        <p class="field-label">Etapa</p>
+        <select class="field-input" id="ncStage">
+          ${STAGES.map(s => `<option value="${s.key}">${s.label}</option>`).join("")}
+        </select>
+        <p class="field-error" id="ncError"></p>
+        <button class="btn-primary" id="saveCrop">Guardar cultivo</button>
+      `);
+      document.getElementById("saveCrop").onclick = async () => {
+        const errEl = document.getElementById("ncError");
+        const crop = document.getElementById("ncName").value.trim();
+        const planting_date = document.getElementById("ncDate").value;
+        const stage = document.getElementById("ncStage").value;
+        if (!crop || !planting_date) { errEl.textContent = "Completa el cultivo y la fecha."; return; }
+        try {
+          await apiFetch(`/farms/${farmId}/crop-history`, {
+            method: "POST",
+            body: JSON.stringify({ crop, planting_date, stage }),
+          });
+          closeSheet();
+          appState.tab = "hoy";
+          render();
+          showToast("Cultivo registrado");
+        } catch (e) {
+          errEl.textContent = e.message;
+        }
+      };
+    }
+
+    /* ====================== App: Rotación ====================== */
+    async function renderRotacionInto(container, farm) {
+      container.innerHTML = `
+        <article class="card">
+          <div class="card-head"><div><p class="card-kicker">Para ${escapeHtml(farm.name)}</p><h2 class="card-title">¿Qué quieres cuidar más?</h2></div></div>
+          <div class="priority-row">
+            ${Object.entries(PRIORITY_LABELS).map(([key, label]) => `
+              <button class="priority-btn ${appState.priority === key ? "active" : ""}" data-prio="${key}">${label}</button>
+            `).join("")}
+          </div>
+          <div id="rotationList"><p class="center-text">Calculando recomendación…</p></div>
+        </article>`;
+
+      container.querySelectorAll("[data-prio]").forEach(btn => {
+        btn.onclick = () => { appState.priority = btn.dataset.prio; renderRotacionInto(container, farm); };
+      });
+
+      try {
+        const priorities = [appState.priority, ...["water", "soil", "income"].filter(p => p !== appState.priority)];
+        const result = await apiFetch(`/farms/${farm.id}/rotation/recommendations`, {
+          method: "POST",
+          body: JSON.stringify({ priorities }),
+        });
+        const list = document.getElementById("rotationList");
+        if (!list) return; // el usuario cambió de pestaña mientras cargaba
+        list.innerHTML = `
+          <div class="rotation-list">
+            ${result.items.map(item => `
+              <div class="rotation-item ${item.is_current ? "current" : ""}">
+                <div class="rotation-item-top">
+                  <strong>${escapeHtml(item.crop)}</strong>
+                  <span style="display:flex; gap:0.375rem;">
+                    ${item.is_current ? '<span class="tag-actual">ACTUAL</span>' : ""}
+                    <span class="score-pill">${item.score} pts</span>
+                  </span>
+                </div>
+                <ul class="rotation-reasons">${item.reasons.map(r => `<li>${escapeHtml(r)}</li>`).join("")}</ul>
+              </div>`).join("")}
+          </div>
+          ${result.notices.length ? `<p class="source-line">${result.notices.map(escapeHtml).join(" · ")}</p>` : ""}
+          <p class="source-line">Fuentes: ${result.sources_used.join(" · ")}</p>
+        `;
+      } catch (e) {
+        const list = document.getElementById("rotationList");
+        if (list) list.innerHTML = `<p class="center-text">No se pudo calcular: ${escapeHtml(e.message)}</p>`;
+      }
+    }
+
+    /* ====================== App: Cuenta ====================== */
+    async function renderCuentaInto(container) {
+      container.innerHTML = `<p class="spinner-text">Cargando tu cuenta…</p>`;
+      let plans = [];
+      try { plans = await apiFetch("/billing/plans"); } catch (e) { /* se muestra igual sin planes */ }
+
+      const user = appState.user;
+      container.innerHTML = `
+        <article class="card">
+          <p class="card-kicker">Perfil</p>
+          <h2 class="card-title" style="margin-bottom:0.375rem;">${escapeHtml(user.name)} · ${user.role === "producer" ? "Productor" : "Comerciante"}</h2>
+          <p class="center-text" style="text-align:left;">${escapeHtml(user.email)} · Plan actual: <strong>${escapeHtml(user.plan)}</strong>${user.plan_valid_until ? ` (hasta ${user.plan_valid_until.slice(0, 10)})` : ""}</p>
+          <button class="btn-soft" style="margin-top:0.75rem;" id="btnLogout">Cerrar sesión</button>
+        </article>
+
+        <article class="card">
+          <p class="card-kicker">Planes disponibles</p>
+          <h2 class="card-title" style="margin-bottom:0.75rem;">Elige lo que necesita tu campo</h2>
+          ${plans.map(p => `
+            <div class="plan-option ${user.plan === p.id ? "current" : ""}">
+              <div class="plan-option-head">
+                <strong>${escapeHtml(p.name)} ${user.plan === p.id ? "· Activo" : ""}</strong>
+                <span class="plan-price">${p.price_defined ? (p.price === 0 ? "Gratis" : p.price + " " + p.currency) : "Precio por definir"}</span>
+              </div>
+              ${user.plan !== p.id && p.id !== "free" ? `<button class="btn-soft" style="width:100%; margin-top:0.625rem;" data-choose-plan="${p.id}">Solicitar plan ${escapeHtml(p.name)}</button>` : ""}
+            </div>`).join("")}
+        </article>
+
+        <article class="card">
+          <p class="card-kicker">Tus datos y privacidad</p>
+          <h2 class="card-title" style="margin-bottom:0.75rem;">Control de tu cuenta</h2>
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <button class="btn-soft" id="btnExport">Descargar mis datos (JSON)</button>
+            <button class="btn-soft" style="color:var(--red-text); background:var(--red-bg);" id="btnDeleteAcc">Eliminar cuenta</button>
+          </div>
+        </article>
+      `;
+
+      document.getElementById("btnLogout").onclick = logout;
+
+      container.querySelectorAll("[data-choose-plan]").forEach(btn => {
+        btn.onclick = async () => {
+          try {
+            const checkout = await apiFetch("/billing/checkout", {
+              method: "POST",
+              body: JSON.stringify({ plan: btn.dataset.choosePlan }),
+            });
+            openSheet(`
+              <div class="sheet-head"><h3>Pago iniciado</h3><button class="close-btn" onclick="closeSheet()">×</button></div>
+              <p class="center-text" style="text-align:left;">Referencia: <code>${escapeHtml(checkout.reference)}</code></p>
+              <p class="center-text" style="text-align:left;">Tu plan no cambia todavía: se activa solo cuando la pasarela de pago confirme el pago por su cuenta (nunca desde esta pantalla). En esta demo, el equipo lo activa manualmente.</p>
+              <button class="btn-primary" onclick="closeSheet()">Entendido</button>
+            `);
+          } catch (e) {
+            showToast(e.message, true);
+          }
+        };
+      });
+
+      document.getElementById("btnExport").onclick = async () => {
+        try {
+          const data = await apiFetch("/privacy/export");
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "agro-x-mis-datos.json";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          showToast("Descarga iniciada");
+        } catch (e) {
+          showToast(e.message, true);
+        }
+      };
+
+      document.getElementById("btnDeleteAcc").onclick = () => {
+        openSheet(`
+          <div class="sheet-head"><h3>¿Eliminar cuenta?</h3><button class="close-btn" onclick="closeSheet()">×</button></div>
+          <p style="font-size:0.9375rem; color:var(--muted); line-height:1.5;">Esta acción es <strong>irreversible</strong> y borrará tus parcelas e historial.</p>
+          <button class="btn-urgent" id="confirmDelete">Sí, eliminar definitivamente</button>
+        `);
+        document.getElementById("confirmDelete").onclick = async () => {
+          try {
+            await apiFetch("/privacy/account", { method: "DELETE" });
+            closeSheet();
+            logout();
+            showToast("Cuenta eliminada");
+          } catch (e) {
+            showToast(e.message, true);
+          }
+        };
+      };
+    }
+
+    function showUpgradeSheet(reason) {
+      openSheet(`
+        <div class="sheet-head"><h3>Mejora tu plan</h3><button class="close-btn" onclick="closeSheet()">×</button></div>
+        <p style="font-size:0.9375rem; line-height:1.5; color:var(--muted); margin-top:0;">${escapeHtml(reason)}</p>
+        <button class="btn-primary" onclick="closeSheet(); window.goToAccount();">Revisar planes disponibles</button>
+      `);
+    }
+    window.goToAccount = () => { appState.tab = "cuenta"; render(); };
+
+    /* ====================== Render principal ====================== */
+    function renderFarmStrip() {
+      const strip = document.createElement("div");
+      strip.className = "farm-strip";
+      strip.id = "farmStrip";
+      strip.innerHTML = appState.farms.map(f => `
+        <button class="farm-chip ${f.id === appState.selectedFarmId ? "active" : ""}" data-farm="${f.id}"><span>●</span> ${escapeHtml(f.name)}</button>
+      `).join("") + `<button class="farm-chip" id="addFarmQuick">+ Nueva</button>`;
+      return strip;
+    }
+
+    function render() {
+      const root = document.getElementById("root");
+
+      if (appState.screen === "loading") {
+        root.innerHTML = `<p class="spinner-text">Cargando AGRO-X…</p>`;
+        return;
+      }
+      if (appState.screen === "login") {
+        root.innerHTML = renderLogin();
+        wireLogin();
+        return;
+      }
+
+      const farm = getCurrentFarm();
+      root.innerHTML = `
+        <main class="app-shell">
+          <header class="topbar">
+            <div class="brand">
+              <div class="brand-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                </svg>
+              </div>
+              <span>Agro<em>-X</em></span>
+            </div>
+            <button class="plan-badge" id="planPill" title="Ver estado del plan">
+              <span class="plan-dot"></span><span>${appState.user.role === "producer" ? "Productor" : "Comerciante"} · ${escapeHtml(appState.user.plan)}</span>
+            </button>
+          </header>
+          <div id="farmStripSlot"></div>
+          <section class="content" id="mainContent"><p class="spinner-text">Cargando…</p></section>
+
+          <div class="a11y-widget" id="a11yWidget">
+            <div class="a11y-panel" id="a11yPanel" role="region" aria-label="Control de tamaño de texto">
+              <span class="a11y-panel-label">Tamaño<br>letra</span>
+              <span class="a11y-big-a" aria-hidden="true">A+</span>
+              <div class="a11y-slider-wrap">
+                <input type="range" id="fontSlider" class="a11y-slider" min="1" max="1.45" step="0.05" value="${document.documentElement.style.getPropertyValue("--font-scale") || 1}" aria-label="Tamaño de letra" />
+              </div>
+              <span class="a11y-small-a" aria-hidden="true">A-</span>
+              <span class="a11y-value-badge" id="fontScaleLabel">100%</span>
+            </div>
+            <button class="a11y-toggle-btn" id="a11yToggle" aria-expanded="false"><span>🔍 A</span><small>LETRA</small></button>
+          </div>
+
+          <nav class="bottom-nav" aria-label="Navegación principal">
+            <button class="nav-btn ${appState.tab === "hoy" ? "active" : ""}" data-tab="hoy">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Hoy</span>
+            </button>
+            <button class="nav-btn ${appState.tab === "parcelas" ? "active" : ""}" data-tab="parcelas">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              <span>Parcelas</span>
+            </button>
+            <button class="nav-btn ${appState.tab === "rotacion" ? "active" : ""}" data-tab="rotacion">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              <span>Rotación</span>
+            </button>
+            <button class="nav-btn ${appState.tab === "cuenta" ? "active" : ""}" data-tab="cuenta">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Mi Cuenta</span>
+            </button>
+          </nav>
+        </main>
+      `;
+
+      document.getElementById("farmStripSlot").appendChild(renderFarmStrip());
+      document.querySelectorAll("[data-farm]").forEach(btn => {
+        btn.onclick = () => { appState.selectedFarmId = btn.dataset.farm; renderMainContent(); };
+      });
+      const addFarmBtn = document.getElementById("addFarmQuick");
+      if (addFarmBtn) addFarmBtn.onclick = openNewFarmSheet;
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.onclick = () => { appState.tab = btn.dataset.tab; render(); };
+      });
+      document.getElementById("planPill").onclick = () => { appState.tab = "cuenta"; render(); };
+
+      wireA11yWidget();
+      renderMainContent();
+    }
+
+    async function renderMainContent() {
+      const container = document.getElementById("mainContent");
+      const farm = getCurrentFarm();
+
+      if (appState.tab === "hoy") {
+        if (!farm) {
+          container.innerHTML = `<article class="card"><h2 class="card-title">Crea tu primera parcela</h2><p class="center-text" style="text-align:left; margin-top:0.5rem;">Ve a la pestaña "Parcelas" para empezar.</p></article>`;
+          return;
+        }
+        container.innerHTML = renderHoy(farm);
+        await ensureAlertsLoaded(farm.id);
+        container.innerHTML = renderHoy(farm);
+        wireHoyAfterRender(farm);
+      } else if (appState.tab === "parcelas") {
+        container.innerHTML = renderParcelas(farm);
+        wireParcelasAfterRender(farm);
+      } else if (appState.tab === "rotacion") {
+        if (!farm) { container.innerHTML = `<article class="card"><h2 class="card-title">Crea una parcela primero</h2></article>`; return; }
+        await renderRotacionInto(container, farm);
+      } else if (appState.tab === "cuenta") {
+        await renderCuentaInto(container);
+      }
+    }
+
+    function wireA11yWidget() {
+      const a11yToggle = document.getElementById("a11yToggle");
+      const a11yPanel = document.getElementById("a11yPanel");
+      const fontSlider = document.getElementById("fontSlider");
+      const fontScaleLabel = document.getElementById("fontScaleLabel");
+      a11yToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = a11yPanel.classList.toggle("open");
+        a11yToggle.setAttribute("aria-expanded", isOpen);
+      });
+      document.addEventListener("click", (e) => {
+        if (!document.getElementById("a11yWidget").contains(e.target)) {
+          a11yPanel.classList.remove("open");
+          a11yToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+      fontSlider.addEventListener("input", (e) => {
+        const scale = parseFloat(e.target.value);
+        document.documentElement.style.setProperty("--font-scale", scale);
+        fontScaleLabel.textContent = Math.round(scale * 100) + "%";
+      });
+    }
+
+    boot();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(() => { /* no es crítico si falla */ });
+      });
+    }
+  </script>
+</body>
+</html>

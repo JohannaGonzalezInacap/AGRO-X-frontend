@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agro-X · Accesible y Vibrante</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Escala dinámica para accesibilidad */
+      --font-scale: 1;
+      font-size: calc(16px * var(--font-scale));
+
+      --bg-outer: #edf5eb;
+      --bg-app: #f4fbf2;
+      --surface: #ffffff;
+      --surface-soft: #e8f8f5;
+      --border: #d5ebd5;
+      --forest: #0b331c;
+      --green: #27ae60;
+      --green-dark: #1e8449;
+      --leaf: #2ecc71;
+      --text: #11261b;
+      --muted: #52715d;
+      --amber-bg: #fef9e7;
+      --amber-border: #fdebd0;
+      --amber-text: #b7950b;
+      --red-bg: #fdf4f2;
+      --red-border: #efc1b7;
+      --red-text: #9d2e20;
+      --radius-lg: 1.25rem;
+      --radius-md: 1rem;
+      --shadow: 0 0.25rem 1rem rgba(39, 174, 96, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg-outer);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; cursor: pointer; }
+
+    /* Barra superior externa para probar el boceto */
+    .preview-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: #0b331c;
+      color: #e4efe0;
+      font-size: 0.75rem;
+    }
+    .preview-bar span { opacity: 0.85; font-weight: 500; }
+    .preview-pills { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+    .preview-pill {
+      padding: 0.3125rem 0.6875rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: transparent;
+      color: #e4efe0;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .preview-pill.active {
+      background: #27ae60;
+      border-color: #27ae60;
+      color: #ffffff;
+    }
+
+    /* Contenedor móvil */
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      min-height: calc(100dvh - 3rem);
+      margin: 0 auto;
+      background: var(--bg-app);
+      position: relative;
+      padding-bottom: 6rem;
+    }
+
+    @media (min-width: 640px) {
+      .app-shell {
+        margin: 1.375rem auto 2rem;
+        min-height: 820px;
+        border-radius: 2rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 1.5rem 3.75rem rgba(11, 51, 28, 0.12);
+        overflow: hidden;
+      }
+    }
+
+    /* Header limpio */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.25rem 0.875rem;
+      background: var(--bg-app);
+      gap: 0.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5625rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.0375rem;
+      color: var(--forest);
+    }
+    .brand-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.75rem;
+      background: var(--forest);
+      color: var(--leaf);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .brand em { font-style: normal; color: var(--green); }
+
+    .plan-badge {
+      padding: 0.375rem 0.75rem;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--forest);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      box-shadow: 0 0.125rem 0.5rem rgba(39, 174, 96, 0.08);
+    }
+    .plan-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* Selector horizontal de parcelas */
+    .farm-strip {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0 1.25rem 0.875rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .farm-strip::-webkit-scrollbar { display: none; }
+
+    .farm-chip {
+      flex: 0 0 auto;
+      padding: 0.5625rem 0.9375rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      transition: all 0.15s ease;
+    }
+    .farm-chip.active {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: #ffffff;
+    }
+
+    .content {
+      padding: 0 1.125rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+    }
+
+    /* Tarjeta hero: imagen de cultivo verde vivo, nítida y sin mancha verde */
+    .hero-card {
+      background:
+        linear-gradient(180deg, rgba(10, 32, 18, 0.18) 0%, rgba(10, 32, 18, 0.72) 100%),
+        url('https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=1200&q=90') center / cover;
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      box-shadow: 0 0.625rem 1.5625rem rgba(11, 51, 28, 0.18);
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.056rem;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+      margin: 0 0 0.25rem;
+    }
+    .hero-title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025rem;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
+    }
+    .hero-meta {
+      margin: 0.25rem 0 0;
+      font-size: 0.875rem;
+      color: #f4fbf2;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .weather-pill {
+      background: rgba(11, 51, 28, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 1rem;
+      padding: 0.5rem 0.75rem;
+      text-align: right;
+      flex-shrink: 0;
+      backdrop-filter: blur(4px);
+    }
+    .weather-pill strong { display: block; font-size: 1.125rem; line-height: 1.1; }
+    .weather-pill span { font-size: 0.75rem; color: #e8f8f5; }
+
+    /* Línea de etapa fenológica */
+    .stage-box {
+      margin-top: 1.125rem;
+      padding: 0.875rem;
+      border-radius: 1rem;
+      background: rgba(11, 51, 28, 0.68);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.625rem;
+      font-size: 0.8125rem;
+    }
+    .stage-header span { color: #d4efdf; }
+    .stage-header strong { color: #ffffff; }
+
+    .stage-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.375rem;
+    }
+    .stage-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3125rem;
+      background: transparent;
+      border: 0;
+      padding: 0.25rem 0;
+      color: rgba(255,255,255,0.75);
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    .stage-bar {
+      width: 100%;
+      height: 0.4375rem;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.3);
+      transition: background 0.2s;
+    }
+    .stage-step.done .stage-bar { background: #2ecc71; }
+    .stage-step.current .stage-bar {
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.5);
+    }
+    .stage-step.current, .stage-step.done { color: #ffffff; }
+
+    .stage-hint {
+      margin: 0.5rem 0 0;
+      font-size: 0.75rem;
+      color: #d4efdf;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    /* Tarjetas estándar */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.125rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.625rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-kicker {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.05rem;
+      text-transform: uppercase;
+      color: var(--green);
+      margin: 0 0 0.1875rem;
+    }
+    .card-title {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--forest);
+    }
+
+    .tag-orientativo {
+      flex-shrink: 0;
+      padding: 0.25rem 0.5625rem;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Alertas */
+    .alert-card {
+      border-radius: var(--radius-lg);
+      padding: 1.0625rem;
+      border: 1px solid var(--amber-border);
+      background: var(--amber-bg);
+    }
+    .alert-card.high {
+      border-color: var(--red-border);
+      background: var(--red-bg);
+    }
+
+    .alert-top {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .alert-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.8125rem;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      background: rgba(157, 46, 32, 0.12);
+      color: var(--red-text);
+      font-weight: 800;
+      font-size: 1.125rem;
+    }
+    .alert-card:not(.high) .alert-icon {
+      background: rgba(183, 149, 11, 0.15);
+      color: #b7950b;
+    }
+    .alert-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.4375rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.25rem;
+    }
+    .severity-pill {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+      background: var(--red-text);
+      color: #fff;
+    }
+    .alert-card:not(.high) .severity-pill {
+      background: #b7950b;
+    }
+    .alert-date {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .alert-title {
+      margin: 0;
+      font-size: 1.0625rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .alert-detail {
+      margin: 0.625rem 0 0;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      color: #2c3e35;
+    }
+    .alert-recs {
+      margin: 0.625rem 0 0;
+      padding-left: 1.125rem;
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: #2c3e35;
+    }
+    .suggested-box {
+      margin-top: 0.75rem;
+      padding: 0.6875rem 0.8125rem;
+      border-radius: 0.8125rem;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(39, 174, 96, 0.2);
+      font-size: 0.875rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .locked-box {
+      margin-top: 0.75rem;
+      padding: 0.75rem 0.875rem;
+      border-radius: 0.875rem;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px dashed #d4ac0d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.625rem;
+      font-size: 0.875rem;
+      color: #7d6608;
+      flex-wrap: wrap;
+    }
+
+    /* Botones */
+    .btn-primary {
+      width: 100%;
+      min-height: 3rem;
+      border: 0;
+      border-radius: 0.875rem;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #ffffff;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 0.25rem 0.875rem rgba(39, 174, 96, 0.25);
+    }
+    .btn-primary:active { background: #1e8449; transform: scale(0.98); }
+
+    .btn-soft {
+      min-height: 2.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.8125rem;
+      background: var(--surface-soft);
+      color: var(--forest);
+      font-size: 0.875rem;
+      font-weight: 700;
+      padding: 0.375rem 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+    }
+    .btn-urgent {
+      width: 100%;
+      min-height: 2.875rem;
+      margin-top: 0.75rem;
+      border: 0;
+      border-radius: 0.8125rem;
+      background: var(--red-text);
+      color: #ffffff;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 0.25rem 0.75rem rgba(157, 46, 32, 0.2);
+    }
+
+    /* Pronóstico simple */
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.375rem;
+    }
+    .forecast-day {
+      padding: 0.625rem 0.375rem;
+      border-radius: 0.875rem;
+      background: var(--surface-soft);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      border: 1px solid #e2f2ed;
+    }
+    .forecast-day span { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+    .forecast-day strong { font-size: 0.9375rem; color: var(--forest); }
+    .forecast-day small { font-size: 0.75rem; color: var(--muted); }
+
+    /* Rotación */
+    .priority-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 0.875rem;
+    }
+    .priority-btn {
+      min-height: 2.875rem;
+      border-radius: 0.875rem;
+      border: 1px solid var(--border);
+      background: #fafbf9;
+      color: var(--muted);
+      font-size: 0.875rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 0.25rem;
+    }
+    .priority-btn.active {
+      background: var(--surface-soft);
+      border-color: var(--green);
+      color: var(--forest);
+    }
+
+    .rotation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .rotation-item {
+      padding: 0.8125rem 0.875rem;
+      border-radius: 0.9375rem;
+      background: #fafbf9;
+      border: 1px solid var(--border);
+    }
+    .rotation-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3125rem;
+      gap: 0.5rem;
+    }
+    .rotation-item-top strong { font-size: 1rem; color: var(--forest); }
+    .score-pill {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--green);
+      background: var(--surface-soft);
+      padding: 0.1875rem 0.5625rem;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .rotation-reasons {
+      margin: 0;
+      padding-left: 1rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* Datos de parcela */
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.625rem;
+      margin-top: 0.75rem;
+    }
+    .fact-box {
+      padding: 0.6875rem 0.75rem;
+      border-radius: 0.875rem;
+      background: #fafbf9;
+      border: 1px solid var(--border);
+    }
+    .fact-box span { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.125rem; }
+    .fact-box strong { font-size: 0.9375rem; color: var(--forest); }
+
+    .source-line {
+      margin: 0.625rem 0 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* Cuenta / Planes */
+    .plan-option {
+      padding: 0.9375rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: #fafbf9;
+      margin-bottom: 0.625rem;
+    }
+    .plan-option.current {
+      border-color: var(--green);
+      background: var(--surface-soft);
+    }
+    .plan-option-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.375rem;
+      gap: 0.5rem;
+    }
+    .plan-option-head strong { font-size: 1.0625rem; color: var(--forest); }
+    .plan-price { font-size: 0.8125rem; font-weight: 700; color: var(--muted); }
+    .plan-option ul {
+      margin: 0;
+      padding-left: 1.125rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Control flotante de tamaño de fuente (Accesibilidad) */
+    .a11y-widget {
+      position: fixed;
+      right: 16px;
+      bottom: 86px;
+      z-index: 45;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    @media (min-width: 640px) {
+      .a11y-widget {
+        right: max(20px, calc(50% - 220px));
+        bottom: 96px;
+      }
+    }
+    .a11y-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      background: #ffffff;
+      border: 2px solid var(--green);
+      border-radius: 22px;
+      padding: 14px 12px;
+      box-shadow: 0 12px 32px rgba(11, 51, 28, 0.25);
+      width: 68px;
+      animation: rise 0.16s ease-out;
+    }
+    .a11y-panel.open {
+      display: flex;
+    }
+    .a11y-panel-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--forest);
+      text-align: center;
+      margin-bottom: 6px;
+      line-height: 1.15;
+    }
+    .a11y-big-a {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+    .a11y-small-a {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .a11y-slider-wrap {
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+    }
+    .a11y-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 10px;
+      background: #d5ebd5;
+      border-radius: 999px;
+      outline: none;
+      transform: rotate(-90deg);
+      cursor: pointer;
+    }
+    .a11y-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+    }
+    .a11y-slider::-moz-range-thumb {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+    }
+    .a11y-value-badge {
+      margin-top: 8px;
+      background: var(--surface-soft);
+      color: var(--forest);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 7px;
+      border-radius: 999px;
+    }
+    .a11y-toggle-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--forest);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 20px rgba(11, 51, 28, 0.32);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1;
+      gap: 2px;
+      transition: transform 0.15s ease;
+    }
+    .a11y-toggle-btn:active {
+      transform: scale(0.94);
+    }
+    .a11y-toggle-btn small {
+      font-size: 9px;
+      font-weight: 700;
+      color: #a9df7c;
+      letter-spacing: 0.4px;
+    }
+
+    /* Navegación inferior */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+      z-index: 20;
+      box-shadow: 0 -0.375rem 1.25rem rgba(39, 174, 96, 0.08);
+    }
+    @media (min-width: 640px) {
+      .bottom-nav {
+        position: sticky;
+        bottom: 0;
+        left: auto;
+        transform: none;
+      }
+    }
+    .nav-btn {
+      min-height: 3.375rem;
+      border: 0;
+      border-radius: 0.875rem;
+      background: transparent;
+      color: #7f9b87;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .nav-btn.active {
+      background: var(--surface-soft);
+      color: var(--green);
+    }
+
+    /* Modal / Hoja inferior */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 51, 28, 0.45);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+      padding: 0.75rem;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet {
+      width: 100%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 1.25rem 3.125rem rgba(0,0,0,0.2);
+      animation: rise 0.18s ease-out;
+    }
+    @keyframes rise {
+      from { transform: translateY(18px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .sheet-head h3 { margin: 0; font-size: 1.125rem; color: var(--forest); }
+    .close-btn {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-app);
+      font-size: 1.125rem;
+      color: var(--forest);
+    }
+    .field-input {
+      width: 100%;
+      min-height: 2.875rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      padding: 0 0.875rem;
+      font: inherit;
+      font-size: 0.9375rem;
+      margin-bottom: 0.625rem;
+      background: #fafbf9;
+    }
+    .toast {
+      position: fixed;
+      top: 3.875rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--forest);
+      color: #ffffff;
+      padding: 0.625rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      box-shadow: 0 0.625rem 1.5rem rgba(0,0,0,0.18);
+      display: none;
+      z-index: 60;
+      white-space: nowrap;
+    }
+    .toast.show { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de demostración para probar estados de la API -->
+  <div class="preview-bar">
+    <span>Vista previa · Simular plan:</span>
+    <div class="preview-pills">
+      <button class="preview-pill" data-plan="free">Free</button>
+      <button class="preview-pill" data-plan="basic">Básico</button>
+      <button class="preview-pill active" data-plan="pro">Pro</button>
+      <button class="preview-pill" id="btnOpenLogin">Ver Login</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+        </div>
+        <span>Agro<em>-X</em></span>
+      </div>
+      <button class="plan-badge" id="planPill" title="Ver estado del plan">
+        <span class="plan-dot"></span>
+        <span id="planLabel">Productor · Pro</span>
+      </button>
+    </header>
+
+    <!-- Selector rápido de parcela -->
+    <div class="farm-strip" id="farmStrip"></div>
+
+    <!-- Contenido dinámico por pestaña -->
+    <section class="content" id="mainContent"></section>
+
+    <!-- Botón flotante de accesibilidad (tamaño de letra deslizante) -->
+    <div class="a11y-widget" id="a11yWidget">
+      <div class="a11y-panel" id="a11yPanel" role="region" aria-label="Control de tamaño de texto">
+        <span class="a11y-panel-label">Tamaño<br>letra</span>
+        <span class="a11y-big-a" aria-hidden="true">A+</span>
+        <div class="a11y-slider-wrap">
+          <input
+            type="range"
+            id="fontSlider"
+            class="a11y-slider"
+            min="1"
+            max="1.45"
+            step="0.05"
+            value="1"
+            aria-label="Desliza hacia arriba o abajo para cambiar el tamaño de letra"
+          />
+        </div>
+        <span class="a11y-small-a" aria-hidden="true">A-</span>
+        <span class="a11y-value-badge" id="fontScaleLabel">100%</span>
+      </div>
+      <button class="a11y-toggle-btn" id="a11yToggle" aria-expanded="false" title="Aumentar o disminuir tamaño de letra">
+        <span>🔍 A</span>
+        <small>LETRA</small>
+      </button>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button class="nav-btn active" data-tab="hoy">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Hoy</span>
+      </button>
+      <button class="nav-btn" data-tab="parcelas">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        <span>Parcelas</span>
+      </button>
+      <button class="nav-btn" data-tab="rotacion">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span>Rotación</span>
+      </button>
+      <button class="nav-btn" data-tab="cuenta">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Mi Cuenta</span>
+      </button>
+    </nav>
+  </main>
+
+  <!-- Hoja modal reutilizable -->
+  <div class="sheet-backdrop" id="sheetBackdrop">
+    <div class="sheet" id="sheetBody"></div>
+  </div>
+
+  <script>
+    const STAGES = [
+      { key: "recien_plantada", label: "Siembra" },
+      { key: "crecimiento", label: "Brote" },
+      { key: "floracion", label: "Flor" },
+      { key: "fruto", label: "Fruto" },
+      { key: "cosecha", label: "Cosecha" }
+    ];
+
+    const state = {
+      plan: "pro", // free | basic | pro
+      tab: "hoy",
+      selectedFarmId: "f1",
+      priority: "water",
+      farms: [
+        {
+          id: "f1",
+          name: "Parcela Norte",
+          region: "Maule",
+          area_hectares: 3.5,
+          soil_texture: "Franco arcilloso",
+          drainage: "Bueno",
+          organic_matter_percent: 3.2,
+          has_irrigation: true,
+          current_crop: "Tomate",
+          planting_date: "2026-09-18",
+          stage: "floracion",
+          tempNow: "24°C",
+          rainProb: "10% lluvia",
+          alert: {
+            type: "extreme_heat",
+            severity: "alta",
+            title: "Ola de calor esperada en floración",
+            expected_date: "2026-11-18",
+            detail: "Se esperan máximas sobre 34°C durante 3 días seguidos, justo en etapa sensible de floración.",
+            recommendations: [
+              "Adelantar el riego a primera hora de la mañana (06:00 - 08:00).",
+              "Evitar aplicaciones foliares en horas de mayor calor.",
+              "Evaluar cosecha anticipada de frutos maduros."
+            ],
+            suggested_crop: "Poroto resistente a calor (próximo ciclo)",
+            sources_used: ["NASA POWER", "Open-Meteo"],
+            illustrative: true,
+            urgentIdeas: [
+              "Ofrecer lote fresco con retiro en predio a ferias locales antes del jueves.",
+              "Separar calibre maduro para venta directa en cajones de 10 kg.",
+              "Destinar fruta blanda a salsa o pulpa artesanal para evitar merma."
+            ]
+          }
+        },
+        {
+          id: "f2",
+          name: "Potrero El Sauce",
+          region: "Maule",
+          area_hectares: 5.0,
+          soil_texture: "Franco arenoso",
+          drainage: "Moderado",
+          organic_matter_percent: 2.4,
+          has_irrigation: false,
+          current_crop: "Trigo",
+          planting_date: "2026-07-02",
+          stage: "fruto",
+          tempNow: "22°C",
+          rainProb: "25% lluvia",
+          alert: {
+            type: "drought",
+            severity: "media",
+            title: "Déficit hídrico moderado en los próximos 7 días",
+            expected_date: "2026-11-20",
+            detail: "Baja humedad superficial prevista sin lluvias relevantes en la semana.",
+            recommendations: [
+              "Mantener cobertura vegetal para reducir evaporación.",
+              "Revisar estado del grano antes de fin de semana."
+            ],
+            suggested_crop: "Lenteja o garbanzo de secano",
+            sources_used: ["NASA POWER", "Open-Meteo"],
+            illustrative: true,
+            urgentIdeas: null
+          }
+        }
+      ],
+      rotationsByPriority: {
+        water: [
+          { crop: "Garbanzo", score: 92, reasons: ["Bajo consumo de agua en verano", "Aprovecha humedad residual del suelo"] },
+          { crop: "Lenteja", score: 86, reasons: ["Ciclo corto adaptado a secano", "Aporta nitrógeno para la siguiente siembra"] },
+          { crop: "Avena", score: 78, reasons: ["Buena tolerancia a escasez hídrica moderada"] }
+        ],
+        soil: [
+          { crop: "Poroto", score: 94, reasons: ["Fija nitrógeno natural y recupera fertilidad", "Rompe el ciclo de plagas de solanáceas"] },
+          { crop: "Trébol / Abono verde", score: 89, reasons: ["Mejora estructura y materia orgánica del suelo"] },
+          { crop: "Maíz", score: 76, reasons: ["Raíz profunda que airea capas compactadas"] }
+        ],
+        income: [
+          { crop: "Maíz dulce", score: 91, reasons: ["Alta demanda estacional en mercado regional", "Buena rotación después de leguminosa o tomate"] },
+          { crop: "Zapallo", score: 85, reasons: ["Buen rendimiento por hectárea y larga conservación"] },
+          { crop: "Poroto verde", score: 82, reasons: ["Cosecha rápida con salida en ferias locales"] }
+        ]
+      }
+    };
+
+    const planNames = { free: "Free", basic: "Básico", pro: "Pro" };
+    const planLimits = { free: 1, basic: 3, pro: 20 };
+
+    /* Lógica de control de tamaño de letra */
+    const a11yToggle = document.getElementById("a11yToggle");
+    const a11yPanel = document.getElementById("a11yPanel");
+    const fontSlider = document.getElementById("fontSlider");
+    const fontScaleLabel = document.getElementById("fontScaleLabel");
+
+    a11yToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = a11yPanel.classList.toggle("open");
+      a11yToggle.setAttribute("aria-expanded", isOpen);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!document.getElementById("a11yWidget").contains(e.target)) {
+        a11yPanel.classList.remove("open");
+        a11yToggle.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    fontSlider.addEventListener("input", (e) => {
+      const scale = parseFloat(e.target.value);
+      document.documentElement.style.setProperty("--font-scale", scale);
+      fontScaleLabel.textContent = Math.round(scale * 100) + "%";
+    });
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+    }
+
+    function openSheet(html) {
+      document.getElementById("sheetBody").innerHTML = html;
+      document.getElementById("sheetBackdrop").classList.add("open");
+    }
+    function closeSheet() {
+      document.getElementById("sheetBackdrop").classList.remove("open");
+    }
+    document.getElementById("sheetBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "sheetBackdrop") closeSheet();
+    });
+
+    function getVisibleFarms() {
+      return state.plan === "free" ? [state.farms[0]] : state.farms;
+    }
+
+    function getCurrentFarm() {
+      const visible = getVisibleFarms();
+      return visible.find(f => f.id === state.selectedFarmId) || visible[0];
+    }
+
+    function renderFarmStrip() {
+      const visible = getVisibleFarms();
+      const current = getCurrentFarm();
+      const strip = document.getElementById("farmStrip");
+
+      strip.innerHTML = visible.map(f => `
+        <button class="farm-chip ${f.id === current.id ? "active" : ""}" data-farm="${f.id}">
+          <span>●</span> ${f.name}
+        </button>
+      `).join("") + `
+        <button class="farm-chip" id="addFarmQuick">+ Nueva</button>
+      `;
+
+      strip.querySelectorAll("[data-farm]").forEach(btn => {
+        btn.onclick = () => {
+          state.selectedFarmId = btn.dataset.farm;
+          render();
+        };
+      });
+
+      document.getElementById("addFarmQuick").onclick = () => {
+        if (state.plan === "free" && visible.length >= 1) {
+          showUpgradeSheet("Tu plan Free permite 1 parcela. Sube a Básico (hasta 3) o Pro (hasta 20).");
+          return;
+        }
+        openNewFarmSheet();
+      };
+    }
+
+    function renderHoy(farm) {
+      const stageIdx = STAGES.findIndex(s => s.key === farm.stage);
+      const alert = farm.alert;
+      const isHigh = alert.severity === "alta";
+      const recalcText = state.plan === "free" ? "Cada 30 días" : state.plan === "basic" ? "Diario" : "Cada 6 horas";
+
+      let alertContentHtml = "";
+      if (state.plan === "free") {
+        alertContentHtml = `
+          <div class="locked-box">
+            <span>El detalle y las acciones de esta alerta están disponibles desde el <strong>plan Básico</strong>.</span>
+            <button class="btn-soft" onclick="window.goToAccount()">Ver planes</button>
+          </div>
+        `;
+      } else {
+        alertContentHtml = `
+          <p class="alert-detail">${alert.detail}</p>
+          <ul class="alert-recs">
+            ${alert.recommendations.map(r => `<li>${r}</li>`).join("")}
+          </ul>
+          ${state.plan === "pro" && alert.suggested_crop ? `
+            <div class="suggested-box">
+              <span><strong>Sugerencia Pro:</strong> ${alert.suggested_crop}</span>
+              <span class="tag-orientativo">Orientativo</span>
+            </div>
+          ` : ""}
+          ${isHigh && alert.urgentIdeas ? `
+            <button class="btn-urgent" id="btnUrgentIdeas">
+              Ver ideas de venta urgente →
+            </button>
+          ` : ""}
+        `;
+      }
+
+      return `
+        <article class="hero-card">
+          <div class="hero-top">
+            <div>
+              <p class="hero-eyebrow">${farm.region} · ${farm.area_hectares} ha</p>
+              <h1 class="hero-title">${farm.name}</h1>
+              <p class="hero-meta">Cultivo actual: <strong>${farm.current_crop}</strong></p>
+            </div>
+            <div class="weather-pill">
+              <strong>${farm.tempNow}</strong>
+              <span>${farm.rainProb}</span>
+            </div>
+          </div>
+
+          <div class="stage-box">
+            <div class="stage-header">
+              <span>Etapa del cultivo</span>
+              <strong>${STAGES[stageIdx].label}</strong>
+            </div>
+            <div class="stage-track">
+              ${STAGES.map((st, idx) => `
+                <button class="stage-step ${idx < stageIdx ? "done" : idx === stageIdx ? "current" : ""}" data-stage="${st.key}">
+                  <div class="stage-bar"></div>
+                  <span>${st.label}</span>
+                </button>
+              `).join("")}
+            </div>
+            <p class="stage-hint">
+              <span>Toca una etapa para actualizar</span>
+              <span>Siembra: ${farm.planting_date}</span>
+            </p>
+          </div>
+        </article>
+
+        <article class="alert-card ${isHigh ? "high" : ""}">
+          <div class="alert-top">
+            <div class="alert-icon" aria-hidden="true">!</div>
+            <div>
+              <div class="alert-meta">
+                <span class="severity-pill">Riesgo ${alert.severity}</span>
+                <span class="alert-date">Previsto: ${alert.expected_date}</span>
+                <span class="tag-orientativo">Orientativo</span>
+              </div>
+              <h2 class="alert-title">${alert.title}</h2>
+            </div>
+          </div>
+          ${alertContentHtml}
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.625rem; margin-top:0.875rem; flex-wrap:wrap;">
+            <span class="source-line" style="margin:0;">Fuentes: ${alert.sources_used.join(" · ")}</span>
+            <button class="btn-soft" id="btnRefreshAlerts">↻ Actualizar (${recalcText})</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="card-kicker">Próximos días</p>
+              <h2 class="card-title">Clima en ${farm.name}</h2>
+            </div>
+            <span style="font-size:0.75rem; color:var(--muted);">Open-Meteo</span>
+          </div>
+          <div class="forecast-grid">
+            <div class="forecast-day"><span>Hoy</span><strong>26°</strong><small>13° min</small></div>
+            <div class="forecast-day"><span>Mañana</span><strong>29°</strong><small>15° min</small></div>
+            <div class="forecast-day"><span>Mié</span><strong>34°</strong><small>17° min</small></div>
+            <div class="forecast-day"><span>Jue</span><strong>33°</strong><small>16° min</small></div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderParcelas(farm) {
+      const visible = getVisibleFarms();
+      return `
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="card-kicker">Tus terrenos (${visible.length} de ${planLimits[state.plan]})</p>
+              <h2 class="card-title">${farm.name}</h2>
+            </div>
+            <button class="btn-soft" id="btnNewFarmCard">+ Agregar</button>
+          </div>
+          <div class="facts-grid">
+            <div class="fact-box"><span>Superficie</span><strong>${farm.area_hectares} hectáreas</strong></div>
+            <div class="fact-box"><span>Textura de suelo</span><strong>${farm.soil_texture}</strong></div>
+            <div class="fact-box"><span>Drenaje</span><strong>${farm.drainage}</strong></div>
+            <div class="fact-box"><span>Riego</span><strong>${farm.has_irrigation ? "Sí, disponible" : "Sin riego (secano)"}</strong></div>
+            <div class="fact-box"><span>Materia orgánica</span><strong>${farm.organic_matter_percent}%</strong></div>
+            <div class="fact-box"><span>Cultivo vigente</span><strong>${farm.current_crop}</strong></div>
+          </div>
+          <button class="btn-primary" style="margin-top:0.875rem;" id="btnNewCrop">
+            Registrar nuevo cultivo en ${farm.name}
+          </button>
+        </article>
+      `;
+    }
+
+    function renderRotacion(farm) {
+      const items = state.rotationsByPriority[state.priority];
+      return `
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <p class="card-kicker">Para ${farm.name}</p>
+              <h2 class="card-title">¿Qué quieres cuidar más?</h2>
+            </div>
+            <span class="tag-orientativo">Orientativo</span>
+          </div>
+          <div class="priority-row">
+            <button class="priority-btn ${state.priority === "water" ? "active" : ""}" data-prio="water">💧 Agua</button>
+            <button class="priority-btn ${state.priority === "soil" ? "active" : ""}" data-prio="soil">🌱 Suelo</button>
+            <button class="priority-btn ${state.priority === "income" ? "active" : ""}" data-prio="income">🪙 Ingreso</button>
+          </div>
+          <div class="rotation-list">
+            ${items.map((item, i) => `
+              <div class="rotation-item">
+                <div class="rotation-item-top">
+                  <strong>${i + 1}. ${item.crop}</strong>
+                  <span class="score-pill">${item.score} pts</span>
+                </div>
+                <ul class="rotation-reasons">
+                  ${item.reasons.map(r => `<li>${r}</li>`).join("")}
+                </ul>
+              </div>
+            `).join("")}
+          </div>
+          <p class="source-line">Fuentes: NASA POWER · Catálogo orientativo Agro-X. Validar con técnico local.</p>
+        </article>
+      `;
+    }
+
+    function renderCuenta() {
+      const plans = [
+        { id: "free", name: "Free", price: "Gratis", bullets: ["Hasta 1 parcela", "Rotación básica", "Recálculo de alertas cada 30 días"] },
+        { id: "basic", name: "Básico", price: "Precio por definir", bullets: ["Hasta 3 parcelas", "Alertas diarias con detalle y consejos", "Ideas de venta urgente en riesgo alto"] },
+        { id: "pro", name: "Pro", price: "Precio por definir", bullets: ["Hasta 20 parcelas", "Alertas cada 6 horas", "Sugerencia automática de cultivo ante riesgo"] }
+      ];
+
+      return `
+        <article class="card">
+          <p class="card-kicker">Perfil</p>
+          <h2 class="card-title" style="margin-bottom:0.375rem;">Juan Pérez · Productor</h2>
+          <p style="margin:0; font-size:0.875rem; color:var(--muted);">juan.perez@campo.cl · Plan actual: <strong>${planNames[state.plan]}</strong></p>
+        </article>
+
+        <article class="card">
+          <p class="card-kicker">Planes disponibles</p>
+          <h2 class="card-title" style="margin-bottom:0.75rem;">Elige lo que necesita tu campo</h2>
+          ${plans.map(p => `
+            <div class="plan-option ${state.plan === p.id ? "current" : ""}">
+              <div class="plan-option-head">
+                <strong>${p.name} ${state.plan === p.id ? "· Activo" : ""}</strong>
+                <span class="plan-price">${p.price}</span>
+              </div>
+              <ul>${p.bullets.map(b => `<li>${b}</li>`).join("")}</ul>
+              ${state.plan !== p.id && p.id !== "free" ? `
+                <button class="btn-soft" style="width:100%; margin-top:0.625rem;" data-choose-plan="${p.id}">
+                  Solicitar plan ${p.name}
+                </button>
+              ` : ""}
+            </div>
+          `).join("")}
+        </article>
+
+        <article class="card">
+          <p class="card-kicker">Tus datos y privacidad</p>
+          <h2 class="card-title" style="margin-bottom:0.75rem;">Control de tu cuenta</h2>
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <button class="btn-soft" id="btnExport">Descargar mis datos (JSON)</button>
+            <button class="btn-soft" id="btnConsent">Recibir avisos promocionales: Activado</button>
+            <button class="btn-soft" style="color:var(--red-text); background:var(--red-bg);" id="btnDeleteAcc">Eliminar cuenta</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function showUpgradeSheet(reason) {
+      openSheet(`
+        <div class="sheet-head">
+          <h3>Mejora tu plan</h3>
+          <button class="close-btn" onclick="closeSheet()">×</button>
+        </div>
+        <p style="font-size:0.9375rem; line-height:1.5; color:var(--muted); margin-top:0;">${reason}</p>
+        <p style="font-size:0.8125rem; color:var(--muted);">Los valores finales de Básico y Pro están por definir.</p>
+        <button class="btn-primary" onclick="closeSheet(); window.goToAccount();">Revisar planes disponibles</button>
+      `);
+    }
+
+    function openNewFarmSheet() {
+      openSheet(`
+        <div class="sheet-head">
+          <h3>Agregar nueva parcela</h3>
+          <button class="close-btn" onclick="closeSheet()">×</button>
+        </div>
+        <input class="field-input" id="nfName" placeholder="Nombre (ej. Potrero Sur)" />
+        <input class="field-input" id="nfRegion" placeholder="Región (ej. O'Higgins)" />
+        <input class="field-input" id="nfArea" type="number" step="0.1" placeholder="Superficie en hectáreas (ej. 4.5)" />
+        <button class="btn-primary" id="saveNewFarm">Guardar parcela</button>
+      `);
+      document.getElementById("saveNewFarm").onclick = () => {
+        const name = document.getElementById("nfName").value.trim() || "Parcela Nueva";
+        const region = document.getElementById("nfRegion").value.trim() || "Maule";
+        const area = parseFloat(document.getElementById("nfArea").value) || 2.0;
+        const id = "f" + (state.farms.length + 1);
+        state.farms.push({
+          ...state.farms[1],
+          id, name, region, area_hectares: area, current_crop: "Por definir", stage: "recien_plantada"
+        });
+        state.selectedFarmId = id;
+        closeSheet();
+        render();
+        showToast("Parcela agregada");
+      };
+    }
+
+    window.goToAccount = () => {
+      state.tab = "cuenta";
+      render();
+    };
+
+    function render() {
+      document.getElementById("planLabel").textContent = `Productor · ${planNames[state.plan]}`;
+      document.querySelectorAll(".preview-pill[data-plan]").forEach(b => {
+        b.classList.toggle("active", b.dataset.plan === state.plan);
+      });
+      document.querySelectorAll(".nav-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.tab === state.tab);
+      });
+
+      renderFarmStrip();
+      const farm = getCurrentFarm();
+      const container = document.getElementById("mainContent");
+
+      if (state.tab === "hoy") container.innerHTML = renderHoy(farm);
+      if (state.tab === "parcelas") container.innerHTML = renderParcelas(farm);
+      if (state.tab === "rotacion") container.innerHTML = renderRotacion(farm);
+      if (state.tab === "cuenta") container.innerHTML = renderCuenta();
+
+      // Eventos de pestaña Hoy
+      container.querySelectorAll("[data-stage]").forEach(btn => {
+        btn.onclick = () => {
+          farm.stage = btn.dataset.stage;
+          render();
+          showToast("Etapa actualizada a " + btn.innerText.trim());
+        };
+      });
+
+      const btnUrgent = document.getElementById("btnUrgentIdeas");
+      if (btnUrgent) {
+        btnUrgent.onclick = () => openSheet(`
+          <div class="sheet-head">
+            <h3>Ideas de venta urgente</h3>
+            <button class="close-btn" onclick="closeSheet()">×</button>
+          </div>
+          <p style="font-size:0.875rem; color:var(--muted); margin-top:0;">
+            Para <strong>${farm.current_crop}</strong> ante alerta de riesgo alto <span class="tag-orientativo">Orientativo</span>
+          </p>
+          <ul style="padding-left:1.125rem; line-height:1.6; font-size:0.9375rem; color:var(--text);">
+            ${farm.alert.urgentIdeas.map(i => `<li>${i}</li>`).join("")}
+          </ul>
+          <button class="btn-primary" onclick="closeSheet()">Entendido</button>
+        `);
+      }
+
+      const btnRef = document.getElementById("btnRefreshAlerts");
+      if (btnRef) {
+        btnRef.onclick = () => {
+          if (state.plan === "free") {
+            showToast("En Free se actualiza cada 30 días (429 too_soon)");
+          } else {
+            showToast("Alertas actualizadas con NASA POWER y Open-Meteo");
+          }
+        };
+      }
+
+      // Eventos Parcelas
+      const btnNF = document.getElementById("btnNewFarmCard");
+      if (btnNF) btnNF.onclick = () => document.getElementById("addFarmQuick").click();
+
+      const btnNC = document.getElementById("btnNewCrop");
+      if (btnNC) {
+        btnNC.onclick = () => openSheet(`
+          <div class="sheet-head">
+            <h3>Nuevo cultivo en ${farm.name}</h3>
+            <button class="close-btn" onclick="closeSheet()">×</button>
+          </div>
+          <input class="field-input" id="ncName" placeholder="Ej. Lechuga, Maíz, Trigo" />
+          <input class="field-input" id="ncDate" type="date" value="2026-11-15" />
+          <button class="btn-primary" id="saveCrop">Guardar cultivo</button>
+        `);
+        setTimeout(() => {
+          const s = document.getElementById("saveCrop");
+          if (s) s.onclick = () => {
+            farm.current_crop = document.getElementById("ncName").value.trim() || farm.current_crop;
+            farm.planting_date = document.getElementById("ncDate").value;
+            farm.stage = "recien_plantada";
+            closeSheet();
+            state.tab = "hoy";
+            render();
+            showToast("Cultivo vigente actualizado");
+          };
+        }, 0);
+      }
+
+      // Eventos Rotación
+      container.querySelectorAll("[data-prio]").forEach(btn => {
+        btn.onclick = () => {
+          state.priority = btn.dataset.prio;
+          render();
+        };
+      });
+
+      // Eventos Cuenta
+      container.querySelectorAll("[data-choose-plan]").forEach(btn => {
+        btn.onclick = () => showToast("Redirigiendo a pasarela de pago (checkout_url)...");
+      });
+      const btnExp = document.getElementById("btnExport");
+      if (btnExp) btnExp.onclick = () => showToast("Descargando export.json con tus datos");
+      const btnDel = document.getElementById("btnDeleteAcc");
+      if (btnDel) {
+        btnDel.onclick = () => openSheet(`
+          <div class="sheet-head">
+            <h3>¿Eliminar cuenta?</h3>
+            <button class="close-btn" onclick="closeSheet()">×</button>
+          </div>
+          <p style="font-size:0.9375rem; color:var(--muted); line-height:1.5;">
+            Esta acción es <strong>irreversible</strong> y borrará tus parcelas e historial.
+          </p>
+          <button class="btn-urgent" onclick="closeSheet(); showToast('Confirmación cancelada (demo)');">Sí, eliminar definitivamente</button>
+        `);
+      }
+    }
+
+    // Listeners globales
+    document.querySelectorAll(".preview-pill[data-plan]").forEach(btn => {
+      btn.onclick = () => {
+        state.plan = btn.dataset.plan;
+        render();
+        showToast("Simulando plan " + planNames[state.plan]);
+      };
+    });
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.onclick = () => {
+        state.tab = btn.dataset.tab;
+        render();
+      };
+    });
+
+    document.getElementById("planPill").onclick = () => {
+      state.tab = "cuenta";
+      render();
+    };
+
+    document.getElementById("btnOpenLogin").onclick = () => openSheet(`
+      <div class="sheet-head">
+        <h3>Ingresar a Agro-X</h3>
+        <button class="close-btn" onclick="closeSheet()">×</button>
+      </div>
+      <p style="font-size:0.875rem; color:var(--muted); margin-top:0;">Acceso limpio pensado para campo.</p>
+      <input class="field-input" type="email" placeholder="Tu correo (ej. juan@campo.cl)" />
+      <input class="field-input" type="password" placeholder="Contraseña (mínimo 12 caracteres)" />
+      <button class="btn-primary" onclick="closeSheet(); showToast('Sesión iniciada');">Entrar a mi campo</button>
+    `);
+
+    render();
+  </script>
+</body>
+</html>
